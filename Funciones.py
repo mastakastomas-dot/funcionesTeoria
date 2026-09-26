@@ -12,11 +12,11 @@ def infobits(probs):
 
     return listainfo
 
-def entriopia(lista, base = 2):
+def entriopia(probs, base = 2):
 
     ent = 0
 
-    for p in lista:
+    for p in probs:
         ent += log(1/p, base)*p
 
     return ent
@@ -41,7 +41,8 @@ def generalistas(cadena):
             alfabeto.append(letra)
             listacuenta.append(1)
         else:
-            listacuenta[listacuenta.index(letra)] += 1
+            indice = alfabeto.index(letra)
+            listacuenta[indice] += 1
         total += 1
     probs = []
 
@@ -83,6 +84,59 @@ def generacadena(n, alfabeto, probabilidades):
 
     return cad
 
+def obtiene_matriz(mensaje, alfabeto):
+
+    n = len(alfabeto)
+
+    matriz = [[0.0 for _ in range(n)] for _ in range(n)]
+
+    for i in range(len(mensaje) -1):
+        actual = mensaje[i]
+        siguiente = mensaje[i+1]
+        # aca cuenta la cantidad de veces que un mensaje aparece despues de otro
+        columna = alfabeto.index(actual)
+        fila = alfabeto.index(siguiente)
+        matriz[fila][columna] += 1
+
+    for j in range(n):
+        suma_col = sum(matriz[i][j] for i in range(n))
+        if suma_col > 0:
+            for i in range(n):
+                matriz[i][j] = matriz[i][j] / suma_col
+
+    return matriz
+
+
+def mostrar_matriz(matriz, alfabeto):
+    # Definimos un ancho fijo para las columnas (8 caracteres queda bien para decimales)
+    ancho = 8
+
+    # 1. Armamos el encabezado superior con los símbolos (Columnas = Estado Actual)
+    encabezado = "    |"
+    for simbolo in alfabeto:
+        encabezado += f"{simbolo:>{ancho}}"
+    print(encabezado)
+
+    # Imprimimos una línea separadora dinámica según el ancho total
+    print("-" * len(encabezado))
+
+    # 2. Recorremos e imprimimos cada fila
+    for i in range(len(alfabeto)):
+        # Iniciamos el texto de la fila con su símbolo (Filas = Estado Siguiente)
+        fila_str = f"{alfabeto[i]:>3} |"
+
+        for j in range(len(alfabeto)):
+            # Formateamos cada probabilidad a 3 decimales (.3f) alineada a la derecha
+            fila_str += f"{matriz[i][j]:>{ancho}.3f}"
+
+        print(fila_str)
+
+
+
+
+
+
+
 #devuelve la lista de la extension de orden N y sus probabilidades
 def extension(alfa, probs, n):
     if n == 1:
@@ -102,6 +156,12 @@ def extension(alfa, probs, n):
             nuevas_probs.append(probabilidad)
 
     return nuevo_alfa, nuevas_probs
+
+
+
+#entr = entriopia(probs)
+
+#print(f"entriopia: {entr}")
 
 def productoMatriz(matriz, vector):
     n = len(matriz)
@@ -198,6 +258,7 @@ def genera_lista_longitud_palabras(lista):
 
     return longitudes
 
+#se le pasa el codigo de cada simbolo
 def sumatoria_kraft(lista):
     cad = obtiene_alfa_codigo(lista)
     longitudes = genera_lista_longitud_palabras(lista)
@@ -237,15 +298,7 @@ def es_codigo_compacto(codigos, probabilidades):
     return respuesta
 
 
-palabras_codigo = ["/", "*", "-", "*", "++", "+-"]
-probabilidades = [0.1, 0.50, 0.1, 0.2, 0.05, 0.05]
 
-entrio = entriopia_codigo(probabilidades, palabras_codigo)
-L = longitud_media(palabras_codigo, probabilidades)
-esCompacto = es_codigo_compacto(palabras_codigo, probabilidades)
-print(entrio)
-print(L)
-print(esCompacto)
 
 
 
