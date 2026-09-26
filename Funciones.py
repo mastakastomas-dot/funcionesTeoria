@@ -297,7 +297,26 @@ def es_codigo_compacto(codigos, probabilidades):
         respuesta = False
     return respuesta
 
-
+def entropia_markoviana(matriz, base=2):
+    
+    p_estacionario = vectorEstacionario(matriz)
+    
+    h1 = 0
+    n = len(matriz)
+    
+    
+    for i in range(n):
+        entropia_estado_i = 0
+        for j in range(n):
+            p_condicional = matriz[i][j]  
+            if p_condicional > 0:
+                # Sum_j p_j/i * log(1 / p_j/i)
+                entropia_estado_i += p_condicional * log(1 / p_condicional, base)
+        
+        # Multiplicamos por la probabilidad del estado estacionario i y sumamos
+        h1 += p_estacionario[i] * entropia_estado_i
+        
+    return h1
 
 
 
